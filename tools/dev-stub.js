@@ -48,6 +48,28 @@
         signOut: async () => ({ error: null }),
       },
       rpc: async () => ({ error: null }),
+      functions: {
+        // Simula la Edge Function. localStorage 'fc-dev-ai' = 'off' | 'quota' para probar errores.
+        invoke: async (name, { body }) => {
+          const mode = localStorage.getItem('fc-dev-ai');
+          const fail = (status, error) => ({ data: null, error: { name: 'FunctionsHttpError', context: new Response(JSON.stringify({ error }), { status }) } });
+          if (mode === 'off') return fail(503, 'ai_not_configured');
+          if (mode === 'quota') return fail(429, 'quota');
+          await new Promise((r) => setTimeout(r, 600));
+          window.__lastAIBody = body;
+          if (body.mode === 'chat') return { data: { mode: 'chat', reply: 'Respuesta de prueba a: ' + body.messages[body.messages.length - 1].content } };
+          const first = body.context.plan?.dias?.[0]?.ejercicios?.[0]?.id || '';
+          return { data: { mode: 'review', review: {
+            headline: 'Buen ritmo, ajustemos el volumen',
+            message: 'Vas constante. Tus entrenos se sienten duros, así que bajaremos un poco el volumen.',
+            insights: [{ tone: 'good', title: 'Constancia', text: 'Cumpliste tus días.' }, { tone: 'warn', title: 'Fatiga', text: 'Esfuerzo alto.' }],
+            proposals: [
+              { type: 'volume', label: 'Una serie menos', reason: 'Para recuperar mejor.', delta: -1, exercise_id: '' },
+              { type: 'swap', label: 'Cambiar ' + first, reason: 'Se estancó.', delta: 0, exercise_id: first },
+              { type: 'rotate', label: 'Inventado', reason: 'id que no existe', delta: 0, exercise_id: 'no_existe' },
+            ] } } };
+        },
+      },
       from: (t) => builder(t),
     }),
   };

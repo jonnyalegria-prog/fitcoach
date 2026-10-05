@@ -293,3 +293,15 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
 .seq[data-rest="1"] { background: var(--card2); }
 button.card:not(.flat) { border: 0; font: inherit; color: inherit; }
 button.card { text-align: left; }
+
+.chat { display: flex; flex-direction: column; gap: 12px; min-height: 100%; }
+.chat-list { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.bubble { max-width: 88%; padding: 10px 14px; border-radius: 18px; white-space: pre-wrap; word-wrap: break-word; line-height: 1.4; }
+.bubble.me { align-self: flex-end; background: var(--acc); color: var(--acc-ink); border-bottom-right-radius: 6px; }
+.bubble.ai { align-self: flex-start; background: var(--card); box-shadow: var(--shadow); border-bottom-left-radius: 6px; }
+.bubble.err { background: var(--warn-soft); color: var(--warn); }
+.bubble.typing { letter-spacing: 3px; color: var(--muted); animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .4; } }
+.chat-input { display: flex; gap: 8px; align-items: flex-end; position: sticky; bottom: 0; background: var(--bg); padding-top: 6px; }
+.chat-input textarea { min-height: 48px; max-height: 120px; resize: none; padding: 12px 14px; }
+.chat-send { width: 52px; min-height: 48px; padding: 0; flex: none; }

@@ -129,3 +129,27 @@ begin
 end $$;
 revoke all on function public.create_account(text, text, text) from public;
 grant execute on function public.create_account(text, text, text) to anon, authenticated;
+
+-- ───────── IA: cuota diaria (solo la Edge Function "coach" con service_role la usa) ─────────
+create table public.ai_usage (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  day date not null default ((now() at time zone 'utc')::date),
+  calls int not null default 0,
+  primary key (user_id, day)
+);
+alter table public.ai_usage enable row level security;
+comment on table public.ai_usage is 'Sin políticas a propósito: solo accesible con service_role desde la Edge Function coach.';
+
+create or replace function public.ai_take_quota(p_user uuid, p_limit int)
+returns boolean language plpgsql security definer set search_path = '' as $$
+declare c int;
+begin
+  insert into public.ai_usage (user_id, day, calls)
+  values (p_user, (now() at time zone 'utc')::date, 1)
+  on conflict (user_id, day) do update set calls = public.ai_usage.calls + 1
+    where public.ai_usage.calls < p_limit
+  returning calls into c;
+  return c is not null;
+end $$;
+revoke all on function public.ai_take_quota(uuid, int) from public, anon, authenticated;
+grant execute on function public.ai_take_quota(uuid, int) to service_role;

@@ -1,10 +1,10 @@
 // Service worker: la app abre sin conexión. Red primero (siempre la última versión), caché como respaldo.
-const CACHE = 'fitcoach-v1';
+const CACHE = 'fitcoach-v2';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/styles.css', 'vendor/supabase.js',
-  'js/app.js', 'js/nav.js', 'js/api.js', 'js/ui.js', 'js/util.js', 'js/exercises.js', 'js/planner.js', 'js/coach.js',
+  'js/app.js', 'js/nav.js', 'js/api.js', 'js/ui.js', 'js/util.js', 'js/exercises.js', 'js/planner.js', 'js/coach.js', 'js/ai.js',
   'js/views/auth.js', 'js/views/onboarding.js', 'js/views/home.js', 'js/views/plan.js', 'js/views/workout.js',
-  'js/views/progress.js', 'js/views/profile.js', 'js/views/exercise-sheet.js',
+  'js/views/progress.js', 'js/views/profile.js', 'js/views/exercise-sheet.js', 'js/views/chat.js',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
 ];
 

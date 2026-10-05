@@ -32,6 +32,18 @@ node tools/test-planner.mjs && node tools/test-coach.mjs && node tools/test-edge
 ## Despliegue
 GitHub Pages (rama `main`, carpeta raíz). Al cambiar archivos, sube `CACHE` en `sw.js`.
 
-## IA
-El "entrenador" actual es un motor de reglas local (sin costo). `js/coach.js` está aislado para poder
-conectar un modelo (p. ej. Claude vía una Edge Function de Supabase) más adelante.
+## IA (Claude)
+- **Análisis con IA** (Rutina → Mejorar mi rutina): Claude revisa entrenos, peso, calorías y molestias y propone cambios
+  que la persona aplica con un toque. Las propuestas se validan contra el plan real (solo ids de ejercicios existentes).
+- **Chat con el entrenador**: preguntas libres con el contexto de la persona.
+- Si no hay clave, la app sigue funcionando con el motor de reglas local (`js/coach.js`).
+
+Arquitectura: la app llama a la Edge Function `coach` (`supabase/functions/coach/index.ts`), que exige sesión,
+aplica un tope diario por persona (tabla `ai_usage`) y llama a Claude con el SDK oficial. La clave nunca llega al teléfono.
+
+### Activar la IA (una sola vez)
+1. Crea una API key en https://console.anthropic.com (y fija un límite de gasto mensual allí).
+2. Supabase → proyecto `fitcoach` → Edge Functions → Secrets → añade `ANTHROPIC_API_KEY`.
+3. Opcionales: `ANTHROPIC_MODEL` (por defecto `claude-opus-5-5`; `claude-sonnet-5-5` es más barato) y `AI_DAILY_LIMIT` (por defecto 15 consultas/persona/día).
+
+Se envía a Claude un resumen del entrenamiento (sin nombre ni correo).

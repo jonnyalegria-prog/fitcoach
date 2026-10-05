@@ -1,7 +1,7 @@
 // Entrenador adaptativo: progresión de cargas + revisión y ajuste de la rutina.
 import { EX } from './exercises.js';
 import { localISO } from './util.js';
-import { generatePlan, finisherFor, isLoadable, evaluate, weekInfo, sessionMinutes, estKcal } from './planner.js';
+import { generatePlan, finisherFor, isLoadable, evaluate, weekInfo, sessionMinutes, estKcal, alternatives, swapExercise } from './planner.js';
 
 const DAY = 864e5;
 export const e1rm = (w, r) => (w > 0 && r > 0 ? w * (1 + r / 30) : 0);
@@ -229,6 +229,13 @@ export function applyAction(plan, a, action, ctx) {
         }
         d.estMin = sessionMinutes(d);
         d.estKcal = estKcal(d.estMin, na.weight_kg, 7, d.finisher ? 5.5 : undefined);
+      }
+      return { plan: next, assessment: na };
+    case 'swap':
+      for (const d of next.days) {
+        if (!d.blocks.some((b) => b.exId === action.id)) continue;
+        const alts = alternatives(next, d.id, action.id, na, prefs);
+        if (alts.length) swapExercise(next, d.id, action.id, alts[0].id, na);
       }
       return { plan: next, assessment: na };
     case 'deload':
